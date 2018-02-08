@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# regex to validate in commit msg
+commit_regex='(build|doc|feat|fix|font|image|perf|refactor|style|test)\([a-z\-]+\)\:\s'
+error_msg="Aborting commit. The commit message should be of the format '{type}({scope}): Your commit message'\n"
+visit_link="Learn more @ https://github.com/WordImpress/Give/wiki/Prefixes\n"
+
+if ! grep -iqE "$commit_regex" "$1"; then
+    printf "\033[0;31m$error_msg $visit_link\033[0m" >&2
+    exit 1
+fi
