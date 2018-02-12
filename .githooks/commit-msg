@@ -1,11 +1,76 @@
 #!/usr/bin/env bash
 
-# regex to validate in commit msg
+command_try() {
+	hash "$1" 2>/dev/null
+}
+
+result() {
+	if [ false == ${TESTS["$1"]} ]; then
+		echo -e "${red}- $2 failed. $3 ${normal}"
+		EXIT_STATUS=1
+	else
+		echo -e "${green}- $2 passed. ${normal}"
+	fi
+}
+
+declare -A TESTS
+
+bold="\x1b[1m"
+normal="\x1b[0m"
+red="\x1b[31m"
+green="\x1b[92m"
+EXIT_STATUS=0
+TESTS=([PHPCS]=false [ESLINT]=false [COMMITMSG]=false)
+PHP_FILES=$(git diff --cached --name-only | grep '\.php\?$')
+JS_FILES=$(git diff --cached --name-only | grep '\.js\?$')
+
+command_try phpcs
+FLAG_PHPCS=$?
+
+command_try eslint
+FLAG_ESLINT=$?
+
+# PHPCS Test
+if [[ $PHP_FILES != "" && 0 -eq $FLAG_PHPCS ]]; then
+	for PHP_FILE in ${PHP_FILES}; do
+		./vendor/bin/phpcs $PHP_FILE --colors --standard=PSR2
+	done
+
+	if [ 0 == "$?" ]; then
+		TESTS[PHPCS]=true
+	fi;
+fi
+
+# JS Test
+if [[ $JS_FILES != "" ]]; then
+	for JS_FILE in ${JS_FILES}; do
+		eslint $JS_FILE
+	done
+
+	if [ 0 == "$?" ]; then
+		TESTS[ESLINT]=true
+	fi;
+fi
+
+# Commit message Test
 commit_regex='(build|doc|feat|fix|font|image|perf|refactor|style|test)\([a-z\-]+\)\:\s'
-error_msg="Aborting commit. The commit message should be of the format '{type}({scope}): Your commit message'\n"
 visit_link="Learn more @ https://github.com/WordImpress/Give/wiki/Prefixes\n"
 
-if ! grep -iqE "$commit_regex" "$1"; then
-    printf "\033[0;31m$error_msg $visit_link\033[0m" >&2
-    exit 1
+if grep -iqE "$commit_regex" "$1"; then
+	TESTS[COMMITMSG]=true
+fi
+
+if [[ $PHP_FILES != "" ]]; then
+	result PHPCS "PHPCS"
+fi
+
+if [[ $JS_FILES != "" ]]; then
+	result ESLINT "ESLINT"
+fi
+
+result COMMITMSG "COMMIT" "The commit message should be of the format '{type}({scope}): Your commit message'.\nLearn more @ https://github.com/WordImpress/Give/wiki/Prefixes\n"
+
+if [ 1 == $EXIT_STATUS ]; then
+	echo -e "${bold}${red}All tests should pass for a successful commit.${normal}"
+	exit 1
 fi
