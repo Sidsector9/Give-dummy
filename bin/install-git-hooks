@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
 echo "Installing pre-commit hooks..."
-find .git/hooks -type l -exec rm {} \; && find .githooks -type f -exec ln -sf ../../{} .git/hooks/ \;
+find .git/hooks -type l -exec rm {} \; && find vendor/sidsector9/give-dummy/.githooks -type f -exec ln -sf ../../{} .git/hooks/ \;
 echo "Hooks installed"
