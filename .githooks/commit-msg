@@ -33,7 +33,7 @@ FLAG_ESLINT=$?
 # PHPCS Test
 if [[ $PHP_FILES != "" && 0 -eq $FLAG_PHPCS ]]; then
 	for PHP_FILE in ${PHP_FILES}; do
-		./vendor/bin/phpcs $PHP_FILE --colors --standard=PSR2
+		./vendor/bin/phpcs $PHP_FILE --colors --standard=WordPress
 	done
 
 	if [ 0 == "$?" ]; then
@@ -44,7 +44,7 @@ fi
 # JS Test
 if [[ $JS_FILES != "" ]]; then
 	for JS_FILE in ${JS_FILES}; do
-		eslint $JS_FILE
+		./node_modules/.bin/eslint $JS_FILE
 	done
 
 	if [ 0 == "$?" ]; then
