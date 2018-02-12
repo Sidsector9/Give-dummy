@@ -1,0 +1,12 @@
+{
+    "name": "sidsector9/give-dummy",
+    "description": "Git Hooks for Give",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Sidsector9",
+            "email": "siddharth.thevaril@gmail.com"
+        }
+    ],
+    "require": {}
+}
